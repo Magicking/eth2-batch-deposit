@@ -31,11 +31,7 @@ contract('BatchDeposit', (accounts) => {
   });
   it('Happy path with 100 stakes', async () => {
     const batchDepositInstance = await BatchDeposit.deployed();
-
-    // Setup 1 account.
-    const accountOne = accounts[0];
-
-    const N = 99;
+    const N = 100;
 
     const pubkeyArray = fillArray(stakes[0]['pubkey'], N);
     const withdrawalCredentialsArray = fillArray(stakes[0]['withdrawal_credentials'], N);
@@ -45,7 +41,7 @@ contract('BatchDeposit', (accounts) => {
 
     const amountWei = new web3.utils.BN(web3.utils.toWei(amountGweiArray.reduce((a, b) => (a.add(new web3.utils.BN(b))), new web3.utils.BN("0")), "gwei"));
 
-    await batchDepositInstance.batchDeposit(pubkeyArray, withdrawalCredentialsArray, signatureArray, depositRootArray, { from: accountOne, value: amountWei });
+    await batchDepositInstance.batchDeposit(pubkeyArray, withdrawalCredentialsArray, signatureArray, depositRootArray, { from: accounts[0], value: amountWei });
 
     // Get deposit count in big endian.
     const depositCount = await batchDepositInstance.get_deposit_count.call();
@@ -54,17 +50,28 @@ contract('BatchDeposit', (accounts) => {
   });
   it('number of input elements too important', async () => {
     const batchDepositInstance = await BatchDeposit.deployed();
+    const N = 101;
 
-    // Setup 1 account.
-    const accountOne = accounts[0];
+    const pubkeyArray = fillArray(stakes[0]['pubkey'], N);
+    const withdrawalCredentialsArray = fillArray(stakes[0]['withdrawal_credentials'], N);
+    const signatureArray = fillArray(stakes[0]['signature'], N);
+    const depositRootArray = fillArray(stakes[0]['deposit_root'], N);
+    const amountGweiArray = fillArray(stakes[0]['amount'], N);
 
-    let amountWei = new web3.utils.BN(web3.utils.toWei(stakes.reduce((a, b) => (a['amount'] + b['amount']), { amount: '0' }), "gwei"));
-    await batchDepositInstance.batchDeposit([stakes[0]['pubkey']], [stakes[0]['withdrawal_credentials']], [stakes[0]['signature']], [stakes[0]['deposit_root']], { from: accountOne, value: amountWei });
+    const amountWei = new web3.utils.BN(web3.utils.toWei(amountGweiArray.reduce((a, b) => (a.add(new web3.utils.BN(b))), new web3.utils.BN("0")), "gwei"));
 
+    let errRet;
+    try {
+      await batchDepositInstance.batchDeposit(pubkeyArray, withdrawalCredentialsArray, signatureArray, depositRootArray, { from: accounts[0], value: amountWei });
+    } catch (e) {
+      errRet = e;
+    }
+
+    console.log(errRet);
     // Get deposit count in big endian.
     const depositCount = await batchDepositInstance.get_deposit_count.call();
 
-    assert.equal("0x0100000000000000", depositCount, "Expected number of deposits incorrect");
+    assert.equal("0x6500000000000000", depositCount, "Expected number of deposits incorrect");
   });
   it('number of signatures mismatch the number of public keys', async () => {
   });

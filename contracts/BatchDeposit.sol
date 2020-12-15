@@ -46,6 +46,12 @@ contract BatchDeposit is IDepositContract {
         bytes32[] calldata deposit_data_roots,
         uint64[] calldata amounts
     ) external payable returns (uint256 deposited_amount) {
+        require(pubkeys.length <= MAX_VALIDATORS_VARIABLE);
+        require(pubkeys.length == withdrawal_credentials.length);
+        require(pubkeys.length == signatures.length);
+        require(pubkeys.length == amounts.length);
+        require(pubkeys.length == deposit_data_roots.length);
+
         for (uint256 i = 0; i < pubkeys.length; i++) {
             deposit_contract.deposit{value: amounts[i]}(
                 pubkeys[i],
@@ -55,6 +61,7 @@ contract BatchDeposit is IDepositContract {
             );
             deposited_amount += uint256(amounts[i]);
         }
+        require(msg.value == deposited_amount);
     }
 
     /// @notice Submit multiple Phase 0 DepositData object with a fixed 32 eth amount.
@@ -74,6 +81,12 @@ contract BatchDeposit is IDepositContract {
         bytes[] calldata signatures,
         bytes32[] calldata deposit_data_roots
     ) external payable {
+        require(pubkeys.length <= MAX_VALIDATORS);
+        require(pubkeys.length == withdrawal_credentials.length);
+        require(pubkeys.length == signatures.length);
+        require(pubkeys.length == deposit_data_roots.length);
+        require(pubkeys.length * MAX_EFFECTIVE_DEPOSIT_AMOUNT == msg.value);
+
         for (uint256 i = 0; i < pubkeys.length; i++) {
             deposit_contract.deposit{value: MAX_EFFECTIVE_DEPOSIT_AMOUNT}(
                 pubkeys[i],
