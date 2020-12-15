@@ -1,0 +1,23 @@
+{
+  "name": "batchdeposit",
+  "version": "1.0.0",
+  "description": "Batch deposit contract for ethereum 2",
+  "main": "index.js",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Magicking/eth2-batch-deposit.git"
+  },
+  "author": "Sylvain Laurent",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/Magicking/eth2-batch-deposit/issues"
+  },
+  "homepage": "https://github.com/Magicking/eth2-batch-deposit#readme",
+  "dependencies": {
+    "ganache-core": "^2.13.1",
+    "truffle": "^5.1.57"
+  }
+}
