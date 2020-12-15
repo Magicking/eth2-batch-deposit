@@ -46,22 +46,41 @@ contract BatchDeposit is IDepositContract {
         bytes32[] calldata deposit_data_roots,
         uint64[] calldata amounts
     ) external payable returns (uint256 deposited_amount) {
-        require(pubkeys.length <= MAX_VALIDATORS_VARIABLE);
-        require(pubkeys.length == withdrawal_credentials.length);
-        require(pubkeys.length == signatures.length);
-        require(pubkeys.length == amounts.length);
-        require(pubkeys.length == deposit_data_roots.length);
+        require(
+            pubkeys.length <= MAX_VALIDATORS_VARIABLE,
+            "number of input elements too important"
+        );
+        require(
+            pubkeys.length == withdrawal_credentials.length,
+            "number of withdrawal_credentials mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length == signatures.length,
+            "number of signatures mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length == amounts.length,
+            "number of amounts mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length == deposit_data_roots.length,
+            "number of deposit_data_roots mismatch the number of public keys"
+        );
 
         for (uint256 i = 0; i < pubkeys.length; i++) {
-            deposit_contract.deposit{value: amounts[i]}(
+            uint256 amount = uint256(amounts[i]) * 1 gwei;
+            deposit_contract.deposit{value: amount}(
                 pubkeys[i],
                 withdrawal_credentials[i],
                 signatures[i],
                 deposit_data_roots[i]
             );
-            deposited_amount += uint256(amounts[i]);
+            deposited_amount += amount;
         }
-        require(msg.value == deposited_amount);
+        require(
+            msg.value == deposited_amount,
+            "supplied ether value mismatch the total deposited sum"
+        );
     }
 
     /// @notice Submit multiple Phase 0 DepositData object with a fixed 32 eth amount.
@@ -81,11 +100,26 @@ contract BatchDeposit is IDepositContract {
         bytes[] calldata signatures,
         bytes32[] calldata deposit_data_roots
     ) external payable {
-        require(pubkeys.length <= MAX_VALIDATORS);
-        require(pubkeys.length == withdrawal_credentials.length);
-        require(pubkeys.length == signatures.length);
-        require(pubkeys.length == deposit_data_roots.length);
-        require(pubkeys.length * MAX_EFFECTIVE_DEPOSIT_AMOUNT == msg.value);
+        require(
+            pubkeys.length <= MAX_VALIDATORS,
+            "number of input elements too important"
+        );
+        require(
+            pubkeys.length == withdrawal_credentials.length,
+            "number of withdrawal_credentials mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length == signatures.length,
+            "number of signatures mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length == deposit_data_roots.length,
+            "number of deposit_data_roots mismatch the number of public keys"
+        );
+        require(
+            pubkeys.length * MAX_EFFECTIVE_DEPOSIT_AMOUNT == msg.value,
+            "supplied ether value mismatch the total deposited sum"
+        );
 
         for (uint256 i = 0; i < pubkeys.length; i++) {
             deposit_contract.deposit{value: MAX_EFFECTIVE_DEPOSIT_AMOUNT}(

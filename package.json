@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Magicking/eth2-batch-deposit#readme",
   "dependencies": {
+    "eth-scribble": "^0.3.2",
     "ganache-core": "^2.13.1",
     "truffle": "^5.1.57"
   }
